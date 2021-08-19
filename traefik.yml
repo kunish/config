@@ -1,0 +1,134 @@
+api:
+  insecure: true
+  dashboard: true
+
+serversTransport:
+  insecureSkipVerify: true
+
+entryPoints:
+  web:
+    address: ":80"
+  websecure:
+    address: ":443"
+
+http:
+  routers:
+    blog:
+      rule: "Host(`blog.shikun.info`)"
+      service: blog
+      tls:
+        certResolver: cloudflare
+        domains:
+          - main: "shikun.info"
+      entryPoints:
+        - websecure
+
+    stack:
+      rule: "Host(`stack.shikun.info`) || Host(`ghost.shikun.info`) || Host(`www.shikun.info`) || Host(`shikun.info`)"
+      service: stack
+      tls:
+        certResolver: cloudflare
+        domains:
+          - main: "shikun.info"
+      entryPoints:
+        - websecure
+
+    gitlab:
+      rule: "Host(`gitlab.shikun.info`) || Host(`gitlab-registry.shikun.info`)"
+      service: gitlab
+      tls:
+        certResolver: cloudflare
+        domains:
+          - main: "shikun.info"
+      entryPoints:
+        - websecure
+
+    nas:
+      rule: "Host(`nas.shikun.info`)"
+      service: nas
+      tls:
+        certResolver: cloudflare
+        domains:
+          - main: "shikun.info"
+      entryPoints:
+        - websecure
+
+    portainer:
+      rule: "Host(`portainer.shikun.info`)"
+      service: portainer
+      tls:
+        certResolver: cloudflare
+        domains:
+          - main: "shikun.info"
+      entryPoints:
+        - websecure
+
+    speedtest:
+      rule: "Host(`speedtest.shikun.info`)"
+      service: speedtest
+      tls:
+        certResolver: cloudflare
+        domains:
+          - main: "shikun.info"
+      entryPoints:
+        - websecure
+
+    traefik:
+      rule: "Host(`traefik.shikun.info`)"
+      service: traefik
+      tls:
+        certResolver: cloudflare
+        domains:
+          - main: "shikun.info"
+      entryPoints:
+        - websecure
+
+  services:
+    nas:
+      loadBalancer:
+        servers:
+          - url: "https://10.10.0.8:5001"
+
+    blog:
+      loadBalancer:
+        servers:
+          - url: "http://10.10.0.14:81"
+
+    stack:
+      loadBalancer:
+        servers:
+          - url: "http://10.10.0.14:82"
+
+    gitlab:
+      loadBalancer:
+        servers:
+          - url: "https://10.10.0.14:443"
+
+    portainer:
+      loadBalancer:
+        servers:
+          - url: "http://10.10.0.14:84"
+
+    speedtest:
+      loadBalancer:
+        servers:
+          - url: "http://10.10.0.13:82"
+
+    traefik:
+      loadBalancer:
+        servers:
+          - url: "http://10.10.0.13:8080"
+
+providers:
+  file:
+    directory: "/etc/traefik"
+    watch: true
+
+certificatesResolvers:
+  cloudflare:
+    acme:
+      dnsChallenge:
+        provider: cloudflare
+
+pilot:
+  dashboard: false
